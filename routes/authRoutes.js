@@ -9,13 +9,19 @@ router.get('/login', (req, res) => {
 
 // route for register
 router.get('/register', (req, res) => {
-    res.render("register", { title: 'register-page' });
+    res.render("register", { title: 'Register-page' });
 });
 
 
 // route for forgot-password
 router.get('/forgot-password', (req, res) => {
-    res.render("forgot-password", { title: 'forgot-password-page' });
+    res.render("forgot-password", { title: 'Forgot-password-page' });
+});
+
+
+// route for forgot-password
+router.get('/reset-password', (req, res) => {
+    res.render("reset-password", { title: 'Reset-password-page' });
 });
 export default router;
  
