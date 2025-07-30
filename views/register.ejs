@@ -6,9 +6,14 @@
     <h2 class="fw-bold text-secondary"> Register</h2>
    </div>
    <div class="card-body p-5">
-    <form action="#" method="post">
+     <% if (message.error){ %>
+       <div class=" alert alert-danger" role="alert">
+        <strong><%= message.error %></strong>
+      </div>
+      <% } %>
+    <form action="/register" method="post">
           <div class="mb-3">
-            <label for="name">E-Mail</label>
+            <label for="name">Name</label>
             <input type="name" name="name" id="name" class="form-control " required>
         </div>
         <div class="mb-3">
@@ -23,7 +28,7 @@
       <button type="submit" class="btn btn-primary w-100">Register</button>
       </div>
      <div class="text-center">
-      <p>Alreay have an account? <a href="/login">Login</a></p>
+      <p>Already have an account? <a href="/login">Login</a></p>
      </div>
    </form>
    </div>
