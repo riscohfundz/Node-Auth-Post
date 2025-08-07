@@ -20,7 +20,7 @@ app.use(express.urlencoded({extended: false }));
 
 // cookie middlewares
 app.use(cookieParser(process.env.COOKIE_SECRET));
-
+ 
 // session  middlewares
 app.use(session({
     secret: process.env.SESSION_SECRET,
@@ -34,11 +34,17 @@ app.use(session({
 // flash messages middlewares
 app.use(flash());
 
-// stored flash message for views
+// store flash message for views
 app.use(function (req, res, next ) {
     res.locals.message = req.flash();
     next();
 })
+
+// store authenticated user's session data for views
+app.use(function (req, res, next) {
+    res.locals.user = req.session.user || null;
+    next();
+});
 
 
 //set template engine to ejs  
@@ -47,7 +53,7 @@ app.set('view engine', 'ejs');
 
 // home route
 app.get("/", (req, res) => {
-    res.render("index", { title: 'Home-page' });
+    res.render("index", { title: 'Home-page' , active: 'home'});
 });   
 
 app.use('/', authRoutes);
