@@ -6,7 +6,7 @@ import postRoutes from './routes/postRoutes.js';
 import cookieParser from 'cookie-parser';
 import session from 'express-session';
 import flash from 'connect-flash';
-
+import path from 'path';
 dotenv.config(); // Load environment variables
 
 const app = express();
@@ -20,6 +20,7 @@ app.use(express.json());
 app.use(express.urlencoded({extended: false }));
 
 // make uploads directory as a static
+ app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
 
 // cookie middlewares
 app.use(cookieParser(process.env.COOKIE_SECRET));
