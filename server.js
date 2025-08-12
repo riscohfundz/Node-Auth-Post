@@ -2,6 +2,7 @@ import express from 'express';
 import dotenv from 'dotenv';
 import connectMongoDB from './db.js';
 import authRoutes from './routes/authRoutes.js';
+import postRoutes from './routes/postRoutes.js';
 import cookieParser from 'cookie-parser';
 import session from 'express-session';
 import flash from 'connect-flash';
@@ -17,6 +18,8 @@ connectMongoDB();
 // middlewares
 app.use(express.json());
 app.use(express.urlencoded({extended: false }));
+
+// make uploads directory as a static
 
 // cookie middlewares
 app.use(cookieParser(process.env.COOKIE_SECRET));
@@ -50,14 +53,11 @@ app.use(function (req, res, next) {
 //set template engine to ejs  
 app.set('view engine', 'ejs');
 
-
-// home route
-app.get("/", (req, res) => {
-    res.render("index", { title: 'Home-page' , active: 'home'});
-});   
-
+// auth route
 app.use('/', authRoutes);
 
+// post route
+app.use('/', postRoutes);
 
 app.listen(PORT, () => {
     console.log(`✅ Server is running at http://localhost:${PORT}`);
