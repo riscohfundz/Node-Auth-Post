@@ -4,6 +4,8 @@ import multer from 'multer';
 import path from 'path';
 import User from '../models/userModel.js';
 import Post from '../models/postModel.js';
+import fs, { unlink } from 'fs';
+import { log } from 'console';
 
 const router = express.Router();
 
@@ -27,8 +29,29 @@ router.get("/", (req, res) => {
 });  
 
 // route for my posts page
-router.get('/my-posts', protectedRoute, (req, res) => {
-    res.render('posts/my-posts', {title: ' My Posts', active: 'my-posts'});
+router.get('/my-posts', protectedRoute, async (req, res) => {
+
+    try {
+
+        const userId = req.session.user._id;
+        const user = await User.findById(userId).populate('posts');
+
+        if (!user) {
+            req.flash('error', 'User not found!');
+            return res.redirect('/');
+        }
+
+        res.render('posts/my-posts', {
+            title: 'My Posts',
+            active: 'my-posts',
+            posts: user.posts
+        });
+
+    } catch (error) {
+        console.error(error);
+        req.flash('error', 'An error occured while fecthing your posts!');
+        res.redirect('/my-posts')
+    }
 });
 
 
@@ -38,9 +61,73 @@ router.get('/create-post', protectedRoute, (req, res) =>{
 });
 
 //  route for edit post
-router.get('/edit-post/:id', protectedRoute, (req, res) => {
-    res.render('posts/edit-post', {title: 'Edit Post', active: 'edit-post'});
+router.get('/edit-post/:id', protectedRoute, async (req, res) => {
+    try {
+
+        const postId = req.params.id;
+        const post = await Post.findById(postId);
+        
+        if (!post) {
+            req.flash('error', 'Post not found!');
+            return res.redirect('/my-posts');
+        }
+
+       res.render('posts/edit-post', {
+         title: 'Edit Post',
+         active: 'edit-post', post});
+      
+     } catch (error) {
+        console.error('error');
+        req.flash('error', 'Something went wrong!');
+        res.redirect('/my-posts');
+        
+    }
 });
+
+
+
+// Handle update a post request
+router.post('/update-post/:id', protectedRoute, upload.single('image'), async (req, res) => {
+    try {
+        const postId = req.params.id;
+        const post = await Post.findById(postId);
+
+        if (!post) {
+            req.flash('error', 'Post not found!');
+            return res.redirect('/my-posts');
+        }
+
+        // Update text fields
+        post.title = req.body.title;
+        post.content = req.body.content;
+        post.slug = req.body.title.replace(/\s+/g, '-').toLowerCase();
+
+        // If a new image is uploaded, delete the old one
+        if (req.file) {
+            const oldImagePath = path.join(process.cwd(), 'uploads', post.image);
+            
+            // Delete old image if it exists
+            if (fs.existsSync(oldImagePath)) {
+                fs.unlinkSync(oldImagePath);
+            }
+
+            // Assign new image filename
+            post.image = req.file.filename;
+        }
+
+        // Save updated post
+        await post.save();
+
+        req.flash('success', 'Post updated successfully!');
+        res.redirect('/my-posts');
+
+    } catch (error) {
+        console.error(error);
+        req.flash('error', 'Something went wrong!');
+        res.redirect('/my-posts');
+    }
+});
+
 
 // route for  view post in detail
 router.get('/post/:id', (req, res) => {
@@ -77,8 +164,43 @@ router.post('/create-post',  protectedRoute,  upload.single('image'),  async (re
         
     }
 
-} 
-)
+});
+
+// handle delete post request
+router.post('/delete-post/:id', protectedRoute, async (req, res) => {
+
+    try {
+        
+        const postId = req.params.id;
+        const post = await Post.findById(postId);
+        
+        if (!post) {
+            req.flash('error', 'Post not found!');
+            return res.redirect('/my-posts');
+        }
+
+        await User.updateOne({_id: req.session.user._id }, { $pull: { posts: postId } });
+        await Post.deleteOne({_id: postId });
+
+        unlink(path.join(process.cwd(), 'uploads') + '/' + post.image, (err) => {
+            if (err) {
+                console.log(err);
+                
+            }
+        });
+
+        req.flash('success', 'Post deleted successfully!');
+        res.redirect('/my-posts');
+
+
+    } catch (error) {
+        console.error(error);
+        req.flash('error', 'Something went wrong!');
+        req.redirect('/my-posts');
+        
+    }
+})
+
 
 
 export default router;

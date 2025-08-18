@@ -7,19 +7,22 @@
                     <h2 class="fw-bold text-secondary">Edit Posts</h2>
                 </div>
                 <div class="card-body p-4">
-                    <form action="/create-post" method="post" enctype="multipart/form-data">
+                    <form action="/update-post/<%= post._id %>" method="post" enctype="multipart/form-data">
                         <div class="mb">
                             <label for="title" class="form-label">Title</label>
-                            <input type="text" class="form-control" id="title" name="title" required> 
+                            <input type="text" class="form-control" id="title" value="<%= post.title %>" name="title" required> 
                         </div>
                         <div class="mb-3">
                             <label for="content" class="form-label">Content</label>
-                            <textarea class="form-control" name="content" id="content" rows="5" required>
-                            </textarea>
+                            <textarea class="form-control" name="content" id="content" rows="5" required> <%=
+                             post.content %></textarea>
                         </div>
                         <div class="mb-3">
                             <label for="image" class="form-label">Image</label>
-                            <input type="file" class="form-control" id="image" name="image" required>
+                            <input type="file" class="form-control" id="image" name="image">
+                            <div class="mt-2">
+                                <img src="/uploads/<%= post.image %>" alt="<%= post.title %>" class="img-fluid img-thumbnail" width="100">
+                            </div>
                         </div>
                         <button type="submit" class="btn btn-success w-100">Update Post</button>
                     </form>

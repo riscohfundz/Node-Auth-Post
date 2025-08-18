@@ -15,7 +15,7 @@
       <% } %>
 
             <div class="card shadow">
-                <div class="card-header d-flex justify-content-between align-items-cente">
+                <div class="card-header d-flex justify-content-between align-items-center">
                     <h2 class="fw-bold text-secondary">My Posts</h2>
                     <a class="btn btn-primary" href="/create-post">Create New Post</a>
                 </div>
@@ -31,16 +31,26 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr>
-                                <td>Post Title</td>
-                                <td>Post Content</td>
-                                <td>Post Image</td>
-                                <td>Post Created At</td>
+                           <% posts.forEach((post) => { %>
+                             <tr>
+                                <td><%= post.title %></td>
+                                <td><%= post.content.substring(0, 50) %> ...</td>
                                 <td>
-                                    <a class="btn btn-primary" href="/edit-post/:id">Edit</a>
-                                    <a class="btn btn-danger" href="/delete-post">Delete</a>
+                                 <img src="/uploads/<%= post.image %>" alt="<%= post.title %>"
+                                 class="img-fluid img-thumbnail" width="100" ></td>
+                                <td>
+                                 <%= post.createdAt.toLocaleString() %>
+                                </td>
+                                <td>
+                                    <a class="btn btn-sm btn-success" href="/post/<%= post.slug %>">View</a>
+                                    <a class="btn btn-primary" href="/edit-post/<%= post._id %>">Edit</a>
+                                    <form action="/delete-post/<%= post._id %>" method="post" class="d-inline">
+                                        <button class="btn btn-sm btn-danger" type="submit">Delete</button>
+                                    </form>
                                 </td>
                             </tr>
+
+                          <% }) %>
                         </tbody>
                     </table>
                 </div>
