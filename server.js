@@ -7,6 +7,9 @@ import cookieParser from 'cookie-parser';
 import session from 'express-session';
 import flash from 'connect-flash';
 import path from 'path';
+import ConnectMongoDBSession from 'connect-mongodb-session';
+const  MongoDBStore  = ConnectMongoDBSession(session);
+
 dotenv.config(); // Load environment variables
 
 const app = express();
@@ -32,7 +35,13 @@ app.use(session({
     saveUninitialized: false,
     cookie: {
         maxAge: 60000*60*24*7 // 1 week
-    }
+    },
+
+    store: new MongoDBStore({
+        uri: process.env.MONGO_DB_URI,
+        Collection: 'session'
+    })
+       
 }));
 
 // flash messages middlewares

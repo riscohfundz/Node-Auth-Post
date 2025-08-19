@@ -1,46 +1,47 @@
 <%- include('partials/header') %>
  <div class="container my-4">
     <div class="row g-4">
-        <div class="col-lg-6">
+      <% posts.forEach((post) => { %>
+          <div class="col-lg-6">
             <div class="card shadow">
-                  <img src="https://thfvnext.bing.com/th/id/OIP.WODKC1HMN0zR4CxXVPKIFQHaJ4?&rs=1&pid=ImgDetMain&o=7&rm=3" class="img-fluid card-img-top" alt="wallpaper">
+                  <img src="/uploads/<%= post.image %>" class="img-fluid card-img-top" alt="<%= post.title %>">
                   <div class="card-body">
-                    <h2 class="card-title fw-bold text-secondary">Wallpaper One</h2>
+                    <h2 class="card-title fw-bold text-secondary"> <%= post.title %></h2>
                     <p class="card-text">
-                        Lorem ipsum dolor sit amet consectetur adipisicing elit. Debitis alias nobis harum laboriosam architecto numquam sapiente, eum laudantium corporis! Iste tempora neque illum laborum error! Rem eum repellendus impedit id!
+                       <%= post.content.substring(0, 200) %>...
                     </p>
                     <div>
-                        <a href="/post/533636" class="btn btn-primary">Read More</a>
+                        <a href="/post/<%= post.slug %>" class="btn btn-primary">Read More</a>
                     </div>
                   </div>
                   <div class="card footer">
                     <div class="d-flex justify-content-between align-items-center">
-                        <div>Author: Ridwan Adekunle</div>
-                        <div>Created: 09-08-2025</div>
-                    </div>
+                        <div>Author: <%= post.user.name %></div>
+                        <div>Created: <%= post.createdAt.toLocaleString() %></div>
+                   </div>
                   </div>
-            </div>
+             </div>
         </div>
-            <div class="col-lg-6">
-            <div class="card shadow">
-                  <img src="https://thfvnext.bing.com/th/id/OIP.WODKC1HMN0zR4CxXVPKIFQHaJ4?&rs=1&pid=ImgDetMain&o=7&rm=3" class="img-fluid card-img-top" alt="wallpaper">
-                  <div class="card-body">
-                    <h2 class="card-title fw-bold text-secondary">Wallpaper One</h2>
-                    <p class="card-text">
-                        Lorem ipsum dolor sit amet consectetur adipisicing elit. Debitis alias nobis harum laboriosam architecto numquam sapiente, eum laudantium corporis! Iste tempora neque illum laborum error! Rem eum repellendus impedit id!
-                    </p>
-                    <div>
-                        <a href="/post/533636" class="btn btn-primary">Read More</a>
-                    </div>
-                  </div>
-                  <div class="card footer">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>Author: Ridwan Adekunle</div>
-                        <div>Created: 09-08-2025</div>
-                    </div>
-                  </div>
+
+      <% }) %>      
+    </div>
+
+
+    <div class="my-4 float-end d-inline-flex align-items-center gap-4">
+        <%  if (pagination.hasPrevPage){ %>
+            <div>
+                <a href="/?page=<%= pagination.prevPage %>" class="btn btn-secondary">Previous</a>
             </div>
-        </div>
+        <% } %>
+
+        <span>Page <%= pagination.currentPage %> of <%= pagination.totalPage %></span>
+
+    
+          <%  if (pagination.hasNextPage){ %>
+            <div>
+                <a href="/?page=<%= pagination.nextPage %>" class="btn btn-secondary">Next</a>
+            </div>
+        <% } %>
     </div>
  </div>
 <%- include('partials/footer') %>

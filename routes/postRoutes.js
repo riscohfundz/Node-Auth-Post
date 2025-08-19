@@ -5,7 +5,6 @@ import path from 'path';
 import User from '../models/userModel.js';
 import Post from '../models/postModel.js';
 import fs, { unlink } from 'fs';
-import { log } from 'console';
 
 const router = express.Router();
 
@@ -24,8 +23,34 @@ const storage = multer.diskStorage({
 const upload = multer ({storage: storage});
 
 // route for home page
-router.get("/", (req, res) => {
-    res.render("index", { title: 'Home-page' , active: 'home'});
+router.get("/", async (req, res) => {
+    const page = parseInt(req.query.page) || 1;
+    const limit = 2;
+    
+
+    const startIndex = (page - 1) * limit;
+    const endIndex = page * limit;
+
+    const totalPosts = await Post.find().countDocuments().exec(); //how many total posts exist.
+
+    const posts = await Post.find()
+        .populate({ path: 'user', select: '-password' })
+        .sort({ _id: 1 })
+        .limit(limit)
+        .skip(startIndex)
+        .exec();
+
+
+    const pagination = {
+        currentPage: page, // where we are now
+        totalPage: Math.ceil(totalPosts / limit), //  how many total pages exist
+        hasNextPage: endIndex < totalPosts, // if there’s a page after this one
+        hasPrevPage: startIndex > 0,  // if there’s a page before this one
+        nextPage: page + 1,  // number of the next page
+        prevPage: page - 1   // number of the previous page
+    }; 
+
+    res.render("index", { title: 'Home-page' , active: 'home', posts, pagination});
 });  
 
 // route for my posts page
@@ -129,9 +154,25 @@ router.post('/update-post/:id', protectedRoute, upload.single('image'), async (r
 });
 
 
-// route for  view post in detail
-router.get('/post/:id', (req, res) => {
-    res.render('posts/view-post', {title: 'View Post', active: 'view-post'});
+  // route for  view post in detail
+  router.get('/post/:slug',  async (req, res) => {
+
+    try {
+        
+        const slug = req.params.slug;
+        const post = await  Post.findOne({ slug }).populate('user');
+        if (!post) {
+            req.flash('error', 'Post not found!');
+            return res.redirect('/my-posts');
+        }
+
+        res.render('posts/view-post', { title: 'View Post', active: 'view-post', post });
+
+       } catch (error) {
+        console.error(error);
+        req.flash('error', 'Something went wrong!');
+        res.redirect('/my-posts');
+      }
 });
 
 // handle create new post
