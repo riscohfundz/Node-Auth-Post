@@ -36,15 +36,20 @@ app.use(
   })
 );
 
-app.use(flash());
+app.use(flash()); // flash messages middlewares
 app.use((req, res, next) => {
   res.locals.message = req.flash();
-  res.locals.user = req.session.user || null;
+  res.locals.user = req.session.user || null; // store authenticated user's session data for views && 
   next();
 });
 
-app.set("view engine", "ejs");
+//set template engine to ejs  
+app.set("view engine", "ejs"); 
+
+// auth route
 app.use("/", authRoutes);
+
+// post route
 app.use("/", postRoutes);
 
 app.listen(PORT, () =>
